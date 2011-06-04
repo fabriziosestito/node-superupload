@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SuperUpload</title>
+</head>
+<body>
+	<h1>SuperUpload</h1>
+
+	<form action="/upload/%UUID%" name="upload_form" 
+	method="POST" id="upload_form" enctype="multipart/form-data" 
+	target="upload_frame">
+		<input type="file" name="file"  id="file" onchange="start_upload();"/>
+	</form>
+	
+	<div id="progress"></div><div id="path"></div>
+	
+	<iframe name="upload_frame" style="display:none; border:0px;" width="0" height="0"></iframe>
+	
+	<form action="/description/%UUID%" name="description_form" 
+	method="POST" id="description_form" onsubmit="send_description(); return false;">
+		<textarea name="description" id="description"></textarea>
+		<a href="#" style="display:none;" id="edit_description" onclick="edit_description();">Edit</a>
+		<input type="submit" value="Save" id="submit_description"/>
+	</form>
+	<script language="javascript">
+	var poll_id;
+	var progress = 0;
+	
+	// XHR
+	if (typeof XMLHttpRequest == "undefined")
+	XMLHttpRequest = function () {
+		try { return new ActiveXObject("Msxml2.XMLHTTP.6.0"); }
+		catch (e) {}
+		try { return new ActiveXObject("Msxml2.XMLHTTP.3.0"); }
+		catch (e) {}
+		try { return new ActiveXObject("Microsoft.XMLHTTP"); }
+		catch (e) {}
+		//Microsoft.XMLHTTP points to Msxml2.XMLHTTP and is redundant
+		throw new Error("This browser does not support XMLHttpRequest.");
+	};
+	var req = new XMLHttpRequest();
+
+	
+	// Description form hack
+	function send_description() {
+		document.getElementById('edit_description').style.display='inline';
+		document.getElementById('submit_description').disabled = true;
+		document.getElementById('description').style.display='none';
+		if(progress == 100) {
+			document.getElementById('description_form').submit();
+		}	
+	}
+	
+	// Edit description
+	function edit_description() {
+		document.getElementById('edit_description').style.display='none';
+		document.getElementById('submit_description').disabled = false;
+		document.getElementById('description').style.display='inline';
+	}
+	
+	// Start upload
+	function start_upload() {
+		document.getElementById('upload_form').submit();
+		poll_id = setInterval('poll_progress()', 2000);
+	}
+	
+	// Poll progress from server
+	function poll_progress() {
+		req.onreadystatechange = function() {
+			if(req.readyState == 4) {
+				var json = eval('(' + req.responseText + ')');
+				progress = json.progress;
+				path = json.path;
+				document.getElementById('progress').innerHTML = 'Status: ' + progress +'%';
+				
+				if(progress == 100) {
+					clearInterval(poll_id);
+					document.getElementById('path').innerHTML = '<a href="' + path +'">' + path + '</a>';
+					if(document.getElementById('submit_description').disabled) {
+						document.getElementById('description_form').submit();
+					}
+				}
+			}
+
+		}
+		req.open("GET", '/progress/%UUID%');
+
+		req.send(null);
+
+	}
+	</script>
+</body>
+</html>
