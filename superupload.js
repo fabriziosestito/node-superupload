@@ -75,7 +75,10 @@ function gen_uuid(remote_addr) {
 
 // Show upload form
 function index(req, res) {
-	res.writeHeader(200, {'Content-Type': 'text/html'});
+	//IE Cache Fix
+	res.writeHeader(200, {'Content-Type': 'text/html',
+	'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate', 
+	'Pragma' : 'no-cache', 'Expires': 'Fri, 01 Jan 1990 00:00:00 GMT'});
 	
 	// No collisions
 	do {
@@ -134,14 +137,22 @@ function upload(req, res, params) {
 function progress(req, res, params) {
 	if(!progress_cache[params]) {
 		res.writeHead(200, {'Content-Type': 'application/json'});
-	    res.write(JSON.stringify({'progress': 100, 'path': 'Error'}));
+	    res.write(JSON.stringify({'progress': 0, 'path': '#'}));
 	    res.end();
 		return;
 	}
+	var path = '/' + upload_dir + '/' + params + '/' + filename_cache[params];
 	
-	res.writeHead(200, {'Content-Type': 'application/json'});
+	if(!filename_cache[params] || filename_cache[params] == 'uploading') {
+		path = '#';
+	}
+	
+	// IE Cache Fix
+	res.writeHead(200, {'Content-Type': 'application/json', 
+	'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate', 
+	'Pragma' : 'no-cache', 'Expires': 'Fri, 01 Jan 1990 00:00:00 GMT'});
 	res.write(JSON.stringify({'progress': progress_cache[params], 
-		'path': '/' + upload_dir + '/' + params + '/' + filename_cache[params]}));
+		'path': path }));
 	res.end();
 }
 
