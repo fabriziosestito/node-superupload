@@ -1,6 +1,5 @@
 # SuperUpload
 
-
 When a user picks a file from their computer, the upload automatically begins. While uploading,
 the percentage complete is visible on the page. It should update at least every 2 seconds.
 While uploading, the user should be able to enter text into a description text area.
@@ -18,5 +17,4 @@ response to the form post request should display both the title and the path to 
 
 ## Usage
 
-
-node superupload.js
+`node superupload.js`
