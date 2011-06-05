@@ -7,7 +7,8 @@ When the upload completes, the page should display the path to the saved file. W
 
 ### Server
 The server is based on http node.js library. Multipart parsing is provided by node-formdidable and static content is provided by node-paperboy.  
-The server provides a simple view renderer, using html files and placeholders `%PLACEHOLDER%`. When an upload form is requested, the server generates an UUID and passes it to a view. When a file is uploaded, a progress event is triggered and the updated status is calculated and stored.  
+The server provides a simple view renderer, using html files and placeholders `%PLACEHOLDER%`.  
+When an upload form is requested, the server generates an UUID and passes it to a view. When a file is uploaded, a progress event is triggered and the updated status is calculated and stored.  
 
 ### Browser
 The upload form contains an UUID that is different every request. Upload is asynchronous thanks to the iframe target trick.    
